@@ -98,6 +98,25 @@ def test_admin_permissions_and_visibility():
     assert post('/admin/events/1/visibility',{'action':'show'},id=4).status_code==200
     assert any(e['id']==1 for e in get(1)['events'])
 
+
+def test_v2_static_assets_available_to_local_server():
+    root=client.get('/')
+    assert root.status_code==200
+    assert '/static/theme.js' in root.text and '/static/insights.js' in root.text
+    for asset in ['theme.js','insights.js','styles.css','manifest.webmanifest']:
+        assert client.get('/static/'+asset).status_code==200
+
+
+def test_v2_analytics_role_and_consistency():
+    admin=get(4)['admin']
+    data=admin['analytics']
+    assert isinstance(data['events'], list) and len(data['events'])>=5
+    assert isinstance(data['communities'], list) and len(data['communities'])>=5
+    assert sum(e['booked'] for e in data['events'])==admin['overview']['bookings']
+    assert all(0<=e['attended']<=e['booked']<=e['capacity'] for e in data['events'])
+    assert isinstance(data['connections'],int) and isinstance(data['reports'],int)
+    assert 'admin' not in get(1)
+
 if __name__=='__main__':
     import pytest
     raise SystemExit(pytest.main([__file__,'-q']))

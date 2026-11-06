@@ -179,6 +179,21 @@ def bootstrap(x_demo_user: Optional[int] = Header(None)):
                     'bookings':c.execute("SELECT COUNT(*) FROM event_bookings WHERE status='booked'").fetchone()[0],
                     'storage':c.execute('SELECT COUNT(*) FROM storage_bookings').fetchone()[0],
                     'events':c.execute('SELECT COUNT(*) FROM events WHERE approved=1').fetchone()[0],
+                },
+                'analytics':{
+                    'events':rows(c,'''SELECT e.id,e.title,e.category,e.area,e.start_at,e.capacity,e.price,e.approved,
+                        (SELECT COUNT(*) FROM event_bookings b WHERE b.event_id=e.id AND b.status='booked') AS booked,
+                        (SELECT COUNT(*) FROM event_bookings b WHERE b.event_id=e.id AND b.status='booked' AND b.attended=1) AS attended
+                        FROM events e ORDER BY e.start_at'''),
+                    'communities':rows(c,'''SELECT c.id,c.name,c.category,COUNT(cm.user_id) AS members
+                        FROM communities c LEFT JOIN community_members cm ON cm.community_id=c.id AND cm.status='joined'
+                        WHERE c.approved=1 GROUP BY c.id'''),
+                    'storage':rows(c,'''SELECT p.id,p.name,p.capacity,
+                        (SELECT COUNT(*) FROM storage_bookings b WHERE b.partner_id=p.id AND b.status != 'collected') AS activeBookings
+                        FROM storage_partners p'''),
+                    'connections':c.execute("SELECT COUNT(*) FROM connections WHERE status='accepted'").fetchone()[0],
+                    'moments':c.execute("SELECT COUNT(*) FROM moments WHERE status='visible'").fetchone()[0],
+                    'reports':c.execute("SELECT COUNT(*) FROM reports WHERE status='open'").fetchone()[0],
                 }
             }
         if user['role']=='host':
