@@ -6,14 +6,22 @@
   <meta name="theme-color" content="#f7f8f5"/>
   <meta name="description" content="AUNO — your city, your people, your next experience. Interactive community and city companion pilot."/>
   <title>AUNO · Your city, your people.</title>
+  <meta name="color-scheme" content="light dark"/>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml"/>
+  <script src="/static/theme.js"></script>
   <link rel="stylesheet" href="/static/styles.css"/>
+  <link rel="stylesheet" href="/static/suite.css"/>
+  <link rel="manifest" href="/static/manifest.webmanifest"/>
 </head>
 <body>
   <div id="app" role="application" aria-label="AUNO interactive demo">
     <div class="boot-screen"><div class="boot-mark">a<span>•</span></div><p>Finding your people…</p></div>
   </div>
   <div id="toast-root" aria-live="polite"></div>
+  
+  <script src="/static/insights.js" defer></script>
+  <script src="/static/suite.js" defer></script>
   <script src="/static/app.js" defer></script>
+  <script>if(false) navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body>
 </html>

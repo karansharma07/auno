@@ -1,11 +1,20 @@
-# AUNO — The people-powered city companion
+# AUNO 2.0 — The people-powered city companion
+
+## What's new in AUNO 2.0
+
+- Premium **System / Light / Dark** design with preference persistence and responsive visual polish.
+- **AUNO Now:** mood-, time- and budget-aware curated demo discovery.
+- **Mission Control:** interactive charts, real browser-demo event analytics, occupancy, trust queues, CSV export and a transparently hypothetical monetisation calculator.
+- Installable static demo manifest, icons and offline service-worker shell.
+- New **`live/` secure alpha** backed by Supabase Auth + PostgreSQL with Row Level Security, pending host/community review and free-event booking RPCs. This **does not** enable payments or luggage custody.
+- Read [`RELEASE_NOTES_V2.md`](RELEASE_NOTES_V2.md), [`LIVE_ALPHA_SETUP.md`](LIVE_ALPHA_SETUP.md) and [`BUSINESS_MODEL.md`](BUSINESS_MODEL.md) for release, activation and commercial plans.
 
 ## GitHub Pages deployment (public, browser-only demo)
 
 This project contains a standalone Pages-compatible version under [`docs/`](docs/), with the same UI and local-only simulated activity/community/social/storage workflows. It is ready to publish through the included GitHub Actions workflow; see **[GITHUB_PAGES.md](GITHUB_PAGES.md)**. The website does not run the Python backend and does not share data between visitors. It is not a real booking or identity-verification service.
 
 
-**Working interactive full-stack pilot (v0.1)** | Dubai-first | Provisional brand name
+**Working interactive full-stack pilot (v2.0 demo UI; v0.1 backend workflows)** | Dubai-first | Provisional brand name
 
 > AUNO helps residents and visitors find people, communities, experiences, places, and helpful local services. This deliverable is a **local, interactive software prototype** with a FastAPI backend, SQLite persistence, and responsive, dependency-free frontend. It is **not** a live marketplace and must not be deployed publicly in its current form.
 
@@ -14,7 +23,7 @@ This project contains a standalone Pages-compatible version under [`docs/`](docs
 Python 3.10+ is required.
 
 ```bash
-cd auno-platform
+# From the extracted project / cloned repository root
 python3 -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 python -m pip install -r requirements.txt
@@ -79,6 +88,9 @@ Seven integration tests cover the demo's role boundaries, community approval, ev
 ```text
 auno-platform/
 ├── app.py                     # FastAPI app, SQLite domain models and REST routes
+├── live/                      # Supabase-backed free-event alpha (separate from demo)
+├── supabase/migrations/       # RLS + audited, capacity-safe booking RPCs
+├── scripts/                   # Static publishable configuration build tool
 ├── static/
 │   ├── index.html             # SPA shell
 │   ├── app.js                 # Interactive client with connected workflows
