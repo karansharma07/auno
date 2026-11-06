@@ -1,0 +1,27 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+const storage=new Map(),seed=JSON.parse(fs.readFileSync(require('node:path').join(__dirname,'../docs/seed.json')));
+const sandbox={console,Response,Date,Math,JSON,window:{},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)}};
+sandbox.window.fetch=async function(path){if(path==='seed.json')return new Response(JSON.stringify(seed),{status:200});throw new Error('Unexpected '+path)};
+vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../docs/demo-api.js'),'utf8'),sandbox);
+const call=async (path,body=null,user=1)=>{const opts={headers:{'X-Demo-User':String(user)}};if(body!==null){opts.method='POST';opts.body=JSON.stringify(body)}const r=await sandbox.window.fetch('/api'+path,opts);let j=await r.json();if(!r.ok)throw new Error(r.status+': '+j.detail);return j};
+(async()=>{
+ const start=await call('/bootstrap');assert.equal(start.me.name,'Maya Chen');assert.equal(start.events.length,6);
+ await call('/events/book',{event_id:1});assert.equal((await call('/bootstrap')).events.find(e=>e.id===1).my_booking.status,'booked');
+ let host=await call('/bootstrap',null,2);let booking=host.host.attendees.find(b=>b.event_id===1&&b.name==='Maya Chen');assert(booking);
+ await call('/host/bookings/'+booking.id+'/checkin',{},2);assert.equal((await call('/bootstrap')).me.xp,1550);
+ await call('/communities/apply',{name:'AUNO Garden Club',category:'Social',area:'Dubai Marina',description:'A welcoming group for weekly community gardeners.'});
+ let admin=await call('/bootstrap',null,4);let req=admin.admin.applications.find(a=>a.name==='AUNO Garden Club');assert(req);
+ await call(`/admin/applications/${req.id}/review`,{action:'approved'},4);assert((await call('/bootstrap')).communities.some(c=>c.name==='AUNO Garden Club'));
+ await call('/connections/request',{user_id:5});assert.equal((await call('/bootstrap',null,5)).connections[0].status,'pending');
+ await call('/connections/1/review',{action:'accepted'},5);assert.equal((await call('/bootstrap')).connections[0].status,'accepted');
+ const d=new Date();const date=d.toISOString().slice(0,10);
+ const stow=await call('/storage/book',{partner_id:1,date,start_time:'12:00',end_time:'17:00',bags:2});assert.equal(stow.price,48);
+ let partner=await call('/bootstrap',null,3);assert(partner.partner.bookings.some(b=>b.code===stow.code));let b=partner.partner.bookings.find(b=>b.code===stow.code);
+ await call(`/partner/bookings/${b.id}/status`,{status:'dropped_off'},3);await call(`/partner/bookings/${b.id}/status`,{status:'collected'},3);
+ assert.equal((await call('/bootstrap')).storageBookings[0].status,'collected');
+ const j=await call('/journeys/generate',{days:2,area:'Dubai Marina',pace:'Balanced',budget:400,interests:['Food','Culture'],with_people:true});assert(j.items.length>=2);
+ await call('/moments',{body:'I recommend a sunset walk along the Marina.',place:'Dubai Marina',category:'Social'});let posts=(await call('/bootstrap')).moments;let post=posts[0];await call(`/moments/${post.id}/like`,{});assert((await call('/bootstrap')).moments[0].liked);
+ await call(`/reports`,{target:`moment:${post.id}`,reason:'Test moderation report'});admin=await call('/bootstrap',null,4);assert(admin.admin.reports.some(x=>x.target===`moment:${post.id}`));await call(`/admin/moments/${post.id}/hide`,{},4);assert(!(await call('/bootstrap')).moments.some(x=>x.id===post.id));
+ const reward=await call('/rewards/1/redeem',{});assert(reward.code.startsWith('RW-'));assert((await call('/bootstrap')).redemptions.length);
+ console.log('PASS: 14 browser-only workflows and role-specific views');
+})().catch(e=>{console.error(e);process.exit(1)});
