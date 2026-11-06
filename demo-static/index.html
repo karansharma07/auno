@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#f7f8f5"/>
+  <meta name="description" content="AUNO — your city, your people, your next experience. Interactive community and city companion pilot."/>
+  <title>AUNO · Your city, your people.</title>
+  <meta name="color-scheme" content="light dark"/>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="suite.css"/>
+  <link rel="manifest" href="manifest.webmanifest"/>
+</head>
+<body>
+  <div id="app" role="application" aria-label="AUNO interactive demo">
+    <div class="boot-screen"><div class="boot-mark">a<span>•</span></div><p>Finding your people…</p></div>
+  </div>
+  <div id="toast-root" aria-live="polite"></div>
+  <script src="demo-api.js" defer></script>
+  <script src="insights.js" defer></script>
+  <script src="suite.js" defer></script>
+  <script src="app.js" defer></script>
+  <script>if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+</body>
+</html>

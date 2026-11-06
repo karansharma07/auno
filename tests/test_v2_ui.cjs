@@ -9,12 +9,12 @@ const document={documentElement:html,querySelector:()=>({content:''}),dispatchEv
 const w={matchMedia:()=>({get matches(){return prefersDark},addEventListener:()=>{}})};
 const storage={getItem:k=>local.get(k)||null,setItem:(k,v)=>local.set(k,v)};
 const sandbox={window:w,document,localStorage:storage,CustomEvent:class {constructor(type,args){this.type=type;this.detail=args.detail}}};
-vm.runInNewContext(read('docs/theme.js'),sandbox);
+vm.runInNewContext(read('demo-static/theme.js'),sandbox);
 assert.equal(document.documentElement.dataset.theme,'light');
 w.AunoTheme.set('dark');assert.equal(local.get('auno-appearance'),'dark');assert.equal(html.dataset.theme,'dark');
 w.AunoTheme.set('light');assert.equal(html.dataset.theme,'light');
 prefersDark=true;w.AunoTheme.set('system');assert.equal(html.dataset.theme,'dark');
-const source=read('docs/insights.js');
+const source=read('demo-static/insights.js');
 const S={nowMood:'explore',nowTime:2,nowBudget:'free',insightsDays:30,insightsCategory:'All',bizBookings:1000,bizTicket:80,bizTake:12};
 const appData={admin:{overview:{members:4},applications:[{id:3}],analytics:{events:[
   {id:1,title:'Padel & People',category:'Padel',area:'Dubai Marina',start_at:new Date(Date.now()+86400000).toISOString(),capacity:12,price:75,booked:2,attended:1},

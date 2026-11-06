@@ -8,7 +8,7 @@ def test_v3_suite_in_chromium():
     sync=pytest.importorskip('playwright.sync_api')
     chromium=shutil.which('chromium') or shutil.which('chromium-browser')
     if not chromium: pytest.skip('Chromium not installed')
-    seed=json.loads((ROOT/'docs/seed.json').read_text())
+    seed=json.loads((ROOT/'demo-static/seed.json').read_text())
     with sync.sync_playwright() as pw:
         browser=pw.chromium.launch(executable_path=chromium, headless=True, args=['--no-sandbox'])
         page=browser.new_page(viewport={'width':1320,'height':900})
@@ -19,8 +19,8 @@ def test_v3_suite_in_chromium():
           const m=new Map();Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,String(v))}});
           window.fetch=async url=>{if(url==='seed.json')return new Response(JSON.stringify(seed),{status:200});throw Error('Unexpected fetch '+url)};
         }''',seed)
-        for css in ['styles.css','suite.css']: page.add_style_tag(path=str(ROOT/'docs'/css))
-        for js in ['theme.js','demo-api.js','insights.js','suite.js','app.js']: page.add_script_tag(path=str(ROOT/'docs'/js))
+        for css in ['styles.css','suite.css']: page.add_style_tag(path=str(ROOT/'demo-static'/css))
+        for js in ['theme.js','demo-api.js','insights.js','suite.js','app.js']: page.add_script_tag(path=str(ROOT/'demo-static'/js))
         page.wait_for_selector('.sidebar')
         page.locator('[data-page="life"]').first.click()
         assert 'AUNO Together' in page.locator('main').inner_text()

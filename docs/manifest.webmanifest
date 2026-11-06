@@ -1,8 +1,8 @@
 {
   "id": "/auno/",
-  "name": "AUNO — Your City, Your People",
+  "name": "AUNO — Your city. Your people.",
   "short_name": "AUNO",
-  "description": "An interactive demonstration of a people-powered city companion. No real bookings or identities.",
+  "description": "Real communities, free activities, mutual introductions and member journeys.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

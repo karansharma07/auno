@@ -1,8 +1,8 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
-const storage=new Map(),seed=JSON.parse(fs.readFileSync(require('node:path').join(__dirname,'../docs/seed.json')));
+const storage=new Map(),seed=JSON.parse(fs.readFileSync(require('node:path').join(__dirname,'../demo-static/seed.json')));
 const sandbox={console,Response,Date,Math,JSON,window:{},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)}};
 sandbox.window.fetch=async function(path){if(path==='seed.json')return new Response(JSON.stringify(seed),{status:200});throw new Error('Unexpected '+path)};
-vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../docs/demo-api.js'),'utf8'),sandbox);
+vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../demo-static/demo-api.js'),'utf8'),sandbox);
 const call=async (path,body=null,user=1)=>{const opts={headers:{'X-Demo-User':String(user)}};if(body!==null){opts.method='POST';opts.body=JSON.stringify(body)}const r=await sandbox.window.fetch('/api'+path,opts);let j=await r.json();if(!r.ok)throw new Error(r.status+': '+j.detail);return j};
 (async()=>{
  const start=await call('/bootstrap');assert.equal(start.me.name,'Maya Chen');assert.equal(start.events.length,6);

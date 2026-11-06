@@ -1,3 +1,5 @@
+> **Historical AUNO 2.0 guide.** Current dual-route release instructions are in [PRODUCTION_SETUP_A_Z.md](PRODUCTION_SETUP_A_Z.md). The `/docs` path now contains generated live-root + preserved `/demo/`, not the old demo root.
+
 # AUNO 2.0 — live alpha: minimal-setup deployment
 
 **Important:** This is a secure *starting implementation* for free-event participation, not a certified production launch. Do not activate paid bookings, verified identity claims, live chat, professional tourism, or luggage custody using the demo workflows.

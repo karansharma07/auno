@@ -16,7 +16,7 @@ def test_v2_browser_journeys():
     browser_path=shutil.which('chromium') or shutil.which('chromium-browser') or shutil.which('google-chrome')
     if not browser_path:
         pytest.skip('Chromium is not installed')
-    seed=json.loads((ROOT/'docs/seed.json').read_text())
+    seed=json.loads((ROOT/'demo-static/seed.json').read_text())
     with sync.sync_playwright() as pw:
         browser=pw.chromium.launch(executable_path=browser_path,headless=True,args=['--no-sandbox'])
         page=browser.new_page(viewport={'width':1350,'height':900})
@@ -28,9 +28,9 @@ def test_v2_browser_journeys():
           Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,String(v))}});
           window.fetch=async url=>{if(url==='seed.json')return new Response(JSON.stringify(seed),{status:200});throw new Error('Unexpected fetch: '+url)};
         }''',seed)
-        page.add_style_tag(path=str(ROOT/'docs/styles.css'))
+        page.add_style_tag(path=str(ROOT/'demo-static/styles.css'))
         for source in ['theme.js','demo-api.js','insights.js','app.js']:
-            page.add_script_tag(path=str(ROOT/'docs'/source))
+            page.add_script_tag(path=str(ROOT/'demo-static'/source))
         page.wait_for_selector('.sidebar',timeout=5000)
         assert 'Hello, Maya' in page.locator('h1').first.inner_text()
         page.locator('.sidebar [data-page="now"]').click()

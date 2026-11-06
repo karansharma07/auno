@@ -1,21 +1,19 @@
-/** Dependency-free static release validation, no network or external credentials. */
-import {readFileSync,existsSync} from 'node:fs';
-import path from 'node:path';
-const fail=(msg)=>{console.error('FAIL: '+msg);process.exitCode=1};
-for (const [folder,endpoint] of [['docs',''],['static','/static/']]) {
-  const html=readFileSync(path.join(folder,'index.html'),'utf8');
-  for (const file of ['styles.css','suite.css','app.js','suite.js','insights.js','theme.js','favicon.svg','manifest.webmanifest']) {
-    const expected=endpoint+file;
-    if(!html.includes(expected))fail(`${folder} HTML missing ${expected}`);
-    if(!existsSync(path.join(folder,file)))fail(`${folder} missing file ${file}`);
-  }
-  const manifest=JSON.parse(readFileSync(path.join(folder,'manifest.webmanifest'),'utf8'));
-  for(const icon of manifest.icons){const iconPath=path.join(folder,path.basename(icon.src));if(!existsSync(iconPath))fail(`${folder} missing icon ${icon.src}`)}
-}
-const docs=readFileSync('docs/index.html','utf8');
-if(!docs.includes('demo-api.js'))fail('Public Pages site must use browser-only API');
-if(!docs.includes('suite.js')||!docs.includes('suite.css'))fail('AUNO signature feature assets missing');
-if(docs.includes('service_role'))fail('Service role text unexpectedly present in demo HTML');
-const live=readFileSync('live/index.html','utf8');
-if(!live.includes('type="module" src="./app.js"') || !existsSync('supabase/migrations/202611060001_foundation.sql') || !existsSync('supabase/migrations/202611060002_experience_suite.sql'))fail('Live alpha incomplete');
-if(!process.exitCode)console.log('PASS: static artifacts, app entrypoints, icon assets and live-alpha scaffold');
+/** Ensure production and demo routes are separate and no demo impersonation enters production. */
+import{readFileSync as read,existsSync as exists}from'node:fs';
+const fail=msg=>{console.error('FAIL: '+msg);process.exitCode=1};
+for(const [folder,assets] of [
+ ['docs',['index.html','app.js','suite.js','theme.js','styles.css','experiences.css','config.js','manifest.webmanifest']],
+ ['docs/demo',['index.html','app.js','suite.js','demo-api.js','seed.json','styles.css','theme.js','manifest.webmanifest']]
+]){for(const file of assets)if(!exists(folder+'/'+file))fail('Missing '+folder+'/'+file)}
+const root=read('docs/index.html','utf8');
+if(root.includes('demo-api.js')||root.includes('seed.json')||root.includes('X-Demo-User'))fail('Production route must never load simulation data or impersonation');
+if(!root.includes('type="module" src="./app.js"'))fail('Production module not loaded');
+const demo=read('docs/demo/index.html','utf8');
+if(!demo.includes('demo-api.js'))fail('Demo route is missing preserved simulator');
+const productionApp=read('docs/app.js','utf8');
+if(productionApp.includes("localStorage.getItem('auno-demo-user')"))fail('Production app contains fake persona selection');
+const cfg=read('docs/config.js','utf8');
+if(/supabaseAnonKey\"\s*:\s*\"(?:sb_secret_|service_role)/i.test(cfg))fail('Secret in client configuration');
+const schema='supabase/migrations/';
+for(const m of ['202611060001_foundation.sql','202611060002_experience_suite.sql','202611060003_live_ops.sql'])if(!exists(schema+m))fail('Missing DB migration '+m);
+if(!process.exitCode)console.log('PASS: live and demo route separation, no mock production API, public configuration and required SQL migrations');
